@@ -1,6 +1,3 @@
--- Author: Ketho (EU-Boulderfist)
--- License: Public Domain
-
 local ClickFrames = {}
 
 local function OnMouseUp(self)
