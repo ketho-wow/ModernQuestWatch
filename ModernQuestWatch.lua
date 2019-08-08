@@ -87,9 +87,16 @@ hooksecurefunc("QuestWatch_Update", function()
 			end
 		end
 	end
-	-- hide/show frames since we cant parent to a FontString
-	--  so it doesn't eat clicks while still allowing OnEnter/OnLeave scripts
+	-- hide/show frames so it doesnt eat clicks, since we cant parent to a FontString
 	for _, frame in pairs(ClickFrames) do
 		frame[GetQuestIndexForWatch(frame.watchIndex) and "Show" or "Hide"](frame)
 	end
 end)
+
+local function OnEvent(self, event, questIndex)
+	AutoQuestWatch_Insert(questIndex, QUEST_WATCH_NO_EXPIRE)
+end
+
+local f = CreateFrame("Frame")
+f:RegisterEvent("QUEST_ACCEPTED")
+f:SetScript("OnEvent", OnEvent)
