@@ -17,33 +17,18 @@ local function OnMouseUp(self)
 	QuestLog_Update()
 end
 
-local function SetHighlightColor(self)
-	self.headerText:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b) -- 1, .82, 0
-	for _, text in ipairs(self.objectiveTexts) do
-		text:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b) -- 1, 1, 1
-	end
-end
-
-local function SetNormalColor(self)
-	self.headerText:SetTextColor(.75, .61, 0)
-	for _, text in ipairs(self.objectiveTexts) do
-		text:SetTextColor(.8, .8, .8)
-	end
-end
-
 local function OnEnter(self)
 	if self.completed then
-		SetNormalColor(self) -- use normal colors instead as highlight
+		-- use normal colors instead as highlight
+		self.headerText:SetTextColor(.75, .61, 0)
+		for _, text in ipairs(self.objectiveTexts) do
+			text:SetTextColor(.8, .8, .8)
+		end
 	else
-		SetHighlightColor(self)
-	end
-end
-
-local function OnLeave(self)
-	if self.completed then
-		SetHighlightColor(self)
-	else
-		SetNormalColor(self)
+		self.headerText:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b) -- 1, .82, 0
+		for _, text in ipairs(self.objectiveTexts) do
+			text:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b) -- 1, 1, 1
+		end
 	end
 end
 
@@ -52,7 +37,7 @@ local function CreateClickFrame(watchIndex, questIndex, headerText, objectiveTex
 		ClickFrames[watchIndex] = CreateFrame("Frame")
 		ClickFrames[watchIndex]:SetScript("OnMouseUp", OnMouseUp)
 		ClickFrames[watchIndex]:SetScript("OnEnter", OnEnter)
-		ClickFrames[watchIndex]:SetScript("OnLeave", OnLeave)
+		ClickFrames[watchIndex]:SetScript("OnLeave", QuestWatch_Update)
 	end
 	local f = ClickFrames[watchIndex]
 	f:SetAllPoints(headerText)
@@ -94,7 +79,10 @@ hooksecurefunc("QuestWatch_Update", function()
 end)
 
 local function OnEvent(self, event, questIndex)
-	AutoQuestWatch_Insert(questIndex, QUEST_WATCH_NO_EXPIRE)
+	-- quest has objectives and there are less than 5 quests being watched
+	if GetNumQuestLeaderBoards(questIndex) ~= 0 and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
+		AutoQuestWatch_Insert(questIndex, QUEST_WATCH_NO_EXPIRE)
+	end
 end
 
 local f = CreateFrame("Frame")
