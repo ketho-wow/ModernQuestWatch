@@ -11,10 +11,19 @@ local function OnMouseUp(self)
 		RemoveQuestWatch(self.questIndex)
 		QuestWatch_Update()
 	else -- open to quest log
-		ShowUIPanel(QuestLogFrame)
-		QuestLog_SetSelection(self.questIndex)
-		local valueStep = QuestLogListScrollFrame.ScrollBar:GetValueStep()
-		QuestLogListScrollFrame.ScrollBar:SetValue(self.questIndex*valueStep/2)
+		if QuestLogEx then -- https://www.wowinterface.com/downloads/info24980-QuestLogEx.html
+			ShowUIPanel(QuestLogExFrame)
+			QuestLogEx:QuestLog_SetSelection(self.questIndex)
+			QuestLogEx:Maximize()
+		elseif ClassicQuestLog then -- https://www.wowinterface.com/downloads/info24937-ClassicQuestLogforClassic.html
+			ShowUIPanel(ClassicQuestLog)
+			QuestLog_SetSelection(self.questIndex)
+		else
+			ShowUIPanel(QuestLogFrame)
+			QuestLog_SetSelection(self.questIndex)
+			local valueStep = QuestLogListScrollFrame.ScrollBar:GetValueStep()
+			QuestLogListScrollFrame.ScrollBar:SetValue(self.questIndex*valueStep/2)
+		end
 	end
 	QuestLog_Update()
 end
