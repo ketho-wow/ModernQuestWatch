@@ -92,7 +92,7 @@ end)
 local function OnEvent(self, event, questIndex)
 	-- tracking otherwise untrackable quests (without any objectives) would still count against the watch limit
 	-- calling AddQuestWatch() while on the max watch limit silently fails
-	if GetNumQuestLeaderBoards(questIndex) ~= 0 and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
+	if GetCVarBool("autoQuestWatch") and GetNumQuestLeaderBoards(questIndex) ~= 0 and GetNumQuestWatches() < MAX_WATCHABLE_QUESTS then
 		AutoQuestWatch_Insert(questIndex, QUEST_WATCH_NO_EXPIRE)
 	end
 end
