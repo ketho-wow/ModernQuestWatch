@@ -3,12 +3,12 @@ local L = S.L
 
 ModernQuestWatch = CreateFrame("Frame")
 local MQW = ModernQuestWatch
+local AnchorFrame = CreateFrame("Frame")
 local ClickFrames = {}
 local db
 
 local defaults = {
-	db_version = 1,
-	userplaced = false,
+	db_version = 2,
 	point = {"TOPRIGHT", "MinimapCluster", "BOTTOMRIGHT", 0, 0},
 }
 
@@ -102,6 +102,7 @@ function MQW:SetClickFrame(watchIndex, questIndex, headerText, objectiveTexts, c
 end
 
 function MQW:Initialize()
+	AnchorFrame:SetSize(1, 1)
 	QuestWatchFrame:SetMovable(true)
 	QuestWatchFrame:SetClampedToScreen(true)
 	QuestWatchFrame:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background"})
@@ -110,8 +111,11 @@ function MQW:Initialize()
 	QuestWatchFrame:SetScript("OnDragStart", QuestWatchFrame.StartMoving)
 	QuestWatchFrame:SetScript("OnDragStop", function(frame)
 		frame:StopMovingOrSizing()
-		db.point = {frame:GetPoint()}
-		db.userplaced = true
+		frame:SetUserPlaced(false) -- we dont want it to be a character-specific UIParent managed frame
+		local effectiveScale = UIParent:GetEffectiveScale()
+		local right = frame:GetRight() * effectiveScale
+		local top = frame:GetTop() * effectiveScale
+		db.point = {"TOPRIGHT", "UIParent", "BOTTOMLEFT", right, top}
 	end)
 
 	-- block FramePositionDelegate.UIParentManageFramePositions from moving this on every OnAttributeChanged
@@ -129,10 +133,8 @@ function MQW:ADDON_LOADED(addon)
 			ModernQuestWatchDB = CopyTable(defaults)
 		end
 		db = ModernQuestWatchDB
-		if db.userplaced then
-			self:SetPosition(unpack(db.point))
-		end
 		self:Initialize()
+		self:SetPosition(unpack(db.point))
 		self:UnregisterEvent("ADDON_LOADED")
 	end
 end
@@ -168,9 +170,12 @@ function MQW:MODIFIER_STATE_CHANGED()
 	end
 end
 
+-- use a separate anchor frame to make it expand down/leftwards only
 function MQW:SetPosition(point, relativeTo, relativePoint, x, y)
+	AnchorFrame:ClearAllPoints()
+	AnchorFrame:SetPoint(point, relativeTo, relativePoint, x, y)
 	QuestWatchFrame:ClearAllPoints()
-	QuestWatchFrame:SetPoint(point, relativeTo, relativePoint, x, y, true)
+	QuestWatchFrame:SetPoint("TOPRIGHT", AnchorFrame, "TOPRIGHT", 0, 0, true)
 end
 
 function MQW:PrintMessage(msg, r, g, b)
