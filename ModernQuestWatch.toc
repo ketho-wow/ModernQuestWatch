@@ -1,6 +1,6 @@
 ## Interface: 11302
 ## Version: @project-version@
-## Title: Modern QuestWatch
+## Title: Modern Quest Watch
 ## Notes: Improves the Quest Tracker
 ## Author: Ketho @ EU-Boulderfist
 ## SavedVariables: ModernQuestWatchDB
